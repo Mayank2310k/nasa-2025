@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exoplanet Predictor</title>
+<style>
+body {
+    background: linear-gradient(135deg, #0b0f19 60%, #1a237e 100%);
+    color: #fff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 0 16px 0;
+    background: rgba(10,20,40,0.95);
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    box-shadow: 0 2px 12px #0004;
+}
+section {
+    background: rgba(255,255,255,0.04);
+    border-radius: 16px;
+    max-width: 420px;
+    margin: 40px auto 0 auto;
+    padding: 32px 32px 24px 32px;
+    box-shadow: 0 4px 24px #0003;
+}
+h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #90caf9;
+}
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+input[type="text"], input[type="number"] {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: #232b3a;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: background 0.2s;
+}
+input[type="text"]:focus, input[type="number"]:focus {
+    background: #283046;
+}
+button[type="submit"] {
+    background: linear-gradient(90deg, #1976d2 60%, #00bcd4 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    box-shadow: 0 2px 8px #0002;
+    transition: background 0.2s, transform 0.1s;
+}
+button[type="submit"]:hover {
+    background: linear-gradient(90deg, #1565c0 60%, #0097a7 100%);
+    transform: translateY(-2px) scale(1.03);
+}
+#predictionResult {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 500;
+    padding: 14px 0;
+    border-radius: 8px;
+    background: rgba(25, 118, 210, 0.12);
+    min-height: 32px;
+    color: #fff;
+    letter-spacing: 1px;
+    box-shadow: 0 1px 6px #0002;
+}
+@media (max-width: 600px) {
+    section {
+        padding: 18px 8px 14px 8px;
+        max-width: 98vw;
+    }
+    header {
+        font-size: 1.2rem;
+        padding: 16px 0 10px 0;
+    }
+}
+</style>
+</head>
+<body>
+<header>
+    Exoplanet Predictor
+</header>
+
+<section>
+    <h2>Check if your planet is an Exoplanet</h2>
+    <form id="exoForm">
+        <input type="text" id="planetName" placeholder="Planet Name" required>
+        <input type="number" id="orbital_period" placeholder="Orbital Period (days)" step="any" required>
+        <input type="number" id="radius" placeholder="Radius (Earth radii)" step="any" required>
+        <input type="number" id="transit_duration" placeholder="Transit Duration (hours)" step="any" required>
+        <input type="number" id="star_temp" placeholder="Star Temp (K)" step="any" required>
+        <button type="submit">Predict</button>
+    </form>
+    <div id="predictionResult"></div>
+</section>
+
+<script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+<script>
+const nasaSamples = {
+    kepler: "kepler_sample.json"
+};
+
+let planetData = {};
+let currentDataset = "kepler";
+
+// Load data once
+async function fetchNasaData(dataset) {
+    if (planetData[dataset]) return planetData[dataset];
+    document.getElementById("predictionResult").innerText = "Loading NASA data...";
+    const resp = await fetch(nasaSamples[dataset]);
+    const data = await resp.json();
+    planetData[dataset] = data;
+    return data;
+}
+
+// Find closest planet in dataset
+function findClosestPlanet(user, data) {
+    let minDist = Infinity, best = null;
+    for (const p of data) {
+        if (
+            p.pl_orbper == null || p.pl_rade == null ||
+            p.pl_trandur == null || p.st_teff == null
+        ) continue;
+        const d_orb = Math.abs(user.orbital_period - p.pl_orbper) / (p.pl_orbper + 1);
+        const d_rad = Math.abs(user.radius - p.pl_rade) / (p.pl_rade + 1);
+        const d_dur = Math.abs(user.transit_duration - p.pl_trandur) / (p.pl_trandur + 1);
+        const d_temp = Math.abs(user.star_temp - p.st_teff) / (p.st_teff + 1);
+        const dist = d_orb + d_rad + d_dur + d_temp;
+        if (dist < minDist) {
+            minDist = dist;
+            best = p;
+        }
+    }
+    return best;
+}
+
+document.getElementById("exoForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+    const data = {
+        orbital_period: parseFloat(document.getElementById("orbital_period").value),
+        radius: parseFloat(document.getElementById("radius").value),
+        transit_duration: parseFloat(document.getElementById("transit_duration").value),
+        star_temp: parseFloat(document.getElementById("star_temp").value)
+    };
+    document.getElementById("predictionResult").innerText = "Predicting...";
+    const planets = await fetchNasaData(currentDataset);
+    const match = findClosestPlanet(data, planets);
+    // Hide the form
+    document.getElementById("exoForm").style.display = "none";
+    // Show result and a Try Again button
+    if (match) {
+        let disposition = match.disposition_using_kepler_data || "Unknown";
+        document.getElementById("predictionResult").innerHTML =
+            `<b>Closest NASA Match:</b> ${match.pl_name || "N/A"}<br>
+             <b>NASA Disposition:</b> ${disposition}<br>
+             <b>NASA Data:</b> Orbital Period: ${match.pl_orbper}, Radius: ${match.pl_rade}, Transit Duration: ${match.pl_trandur}, Star Temp: ${match.st_teff}<br><br>
+             <button id="tryAgainBtn" style="margin-top:16px;padding:10px 20px;border-radius:8px;border:none;background:#1976d2;color:#fff;font-size:1rem;cursor:pointer;">Try Again</button>`;
+    } else {
+        document.getElementById("predictionResult").innerHTML =
+            "No close match found in NASA data.<br><br><button id='tryAgainBtn' style='margin-top:16px;padding:10px 20px;border-radius:8px;border:none;background:#1976d2;color:#fff;font-size:1rem;cursor:pointer;'>Try Again</button>";
+    }
+    // Add Try Again handler
+    document.getElementById("tryAgainBtn").onclick = function() {
+        document.getElementById("exoForm").reset();
+        document.getElementById("exoForm").style.display = "flex";
+        document.getElementById("predictionResult").innerText = "";
+    };
+});
+</script>
+</body>
+</html>

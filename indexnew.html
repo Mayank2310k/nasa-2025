@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exoplanet Model Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body {
+  background-color: #f5f7fa;
+  font-family: 'Inter', sans-serif;
+}
+.card {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+.card:hover {
+  transform: translateY(-5px);
+}
+.button {
+  background-color: #0f4c81;
+  color: white;
+  padding: 0.75rem 2rem; /* reduced height */
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 1.125rem; /* slightly smaller font */
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.metric-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+</style>
+</head>
+<body class="min-h-screen px-6 py-6">
+
+<!-- Navbar -->
+<nav class="flex justify-between items-center py-4 mb-6 border-b border-gray-300">
+  <div class="text-2xl font-bold">Exoplanet Scanner</div>
+  <div class="flex items-center gap-4">
+    <span id="navbarUser" class="text-lg font-medium"></span>
+    <button id="loginBtnNav" class="button">Login</button>
+    <button id="logoutBtnNav" class="button" style="display:none;">Logout</button>
+  </div>
+</nav>
+
+<!-- User Info -->
+<div id="userInfoCard" class="card flex justify-between items-center mb-6" style="display:none;">
+  <div>
+    <p class="text-xl font-semibold">Welcome: <span id="userName"></span></p>
+    <p class="text-gray-600 text-lg">Email: <span id="userEmail"></span></p>
+    <p class="text-gray-500 text-base">Last Login: <span id="lastLogin">N/A</span></p>
+  </div>
+  <img id="userPhoto" class="w-24 h-24 rounded-full border border-gray-300 object-cover" alt="User Photo">
+</div>
+
+<!-- Metrics -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+  <div class="card text-center">
+    <p class="text-lg font-semibold text-gray-500">Accuracy</p>
+    <p class="metric-value">89%</p>
+  </div>
+  <div class="card text-center">
+    <p class="text-lg font-semibold text-gray-500">Precision</p>
+    <p class="metric-value">94%</p>
+  </div>
+  <div class="card text-center">
+    <p class="text-lg font-semibold text-gray-500">Recall</p>
+    <p class="metric-value">95%</p>
+  </div>
+  <div class="card text-center">
+    <p class="text-lg font-semibold text-gray-500">F1 Score</p>
+    <p class="metric-value">95%</p>
+  </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="flex gap-6 mb-6 flex-wrap">
+  <a href="profile copy.html" class="button">🚀 Train & Scan Large CSV</a>
+  <a href="profile-copy.html" class="button">🔎 Check Single Planet</a>
+</div>
+
+<!-- Performance & Insights -->
+<div class="grid md:grid-cols-2 gap-6 mb-6">
+  <div class="card">
+    <h2 class="section-title">Performance Metrics</h2>
+    <ul class="text-gray-600 space-y-2 text-lg">
+      <li>High Accuracy and Precision indicate reliable model performance.</li>
+      <li>Use Train & Scan Large CSV for batch analysis of exoplanet candidates.</li>
+      <li>Try Check Single Planet for instant predictions on individual candidates.</li>
+      <li>Hover over metrics or charts for more details and tooltips.</li>
+    </ul>
+    <p class="text-gray-400 text-sm mt-4">Powered by NASA Kepler/TESS data & advanced ML models.</p>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Model Insights</h2>
+    <ul class="text-gray-600 space-y-2 text-lg">
+      <li>High SNR and clear transit depth are the strongest indicators of confirmed exoplanets.</li>
+      <li>Candidates typically show moderate confidence and may require additional observation.</li>
+      <li>False positives often exhibit irregular transit patterns or low signal quality.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- New Bottom Section -->
+<div class="card mt-6 mb-6">
+  <h2 class="section-title">Additional Insights & References</h2>
+  <ul class="text-gray-600 space-y-2 text-lg">
+    <li>Check NASA Kepler/TESS documentation for detailed dataset description.</li>
+    <li>Hover over the metrics to get live tooltips with explanations.</li>
+    <li>Regularly retrain your model with new confirmed exoplanet data for better predictions.</li>
+    <li>Use batch CSV scanning for efficient exploration of multiple planet candidates.</li>
+  </ul>
+</div>
+
+<!-- Firebase Script -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCvL1BO41qHdgBofEMAe6gqomTMfIlPPpo",
+  authDomain: "hon-2025.firebaseapp.com",
+  projectId: "hon-2025",
+  storageBucket: "hon-2025.appspot.com",
+  messagingSenderId: "269639809351",
+  appId: "1:269639809351:web:f7cf252484fa6d1476f462",
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const loginBtnNav = document.getElementById("loginBtnNav");
+const logoutBtnNav = document.getElementById("logoutBtnNav");
+const userInfoCard = document.getElementById("userInfoCard");
+const userPhoto = document.getElementById("userPhoto");
+const userName = document.getElementById("userName");
+const userEmail = document.getElementById("userEmail");
+const navbarUser = document.getElementById("navbarUser");
+const lastLogin = document.getElementById("lastLogin");
+
+// Convert Firestore Timestamp to readable string
+function formatTimestamp(ts){
+  if(!ts) return "N/A";
+  if(ts instanceof Timestamp) {
+    const date = ts.toDate();
+    return date.toLocaleString();
+  }
+  return ts;
+}
+
+// Login
+loginBtnNav.addEventListener("click", async () => {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const last = new Date().toLocaleString();
+    await setDoc(doc(db, "users", user.uid), {
+      name: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      lastLogin: Timestamp.now()
+    }, { merge: true });
+    showUser(user, Timestamp.now());
+  } catch(e){ console.error(e); }
+});
+
+// Logout
+logoutBtnNav.addEventListener("click", async () => {
+  await signOut(auth);
+  location.reload();
+});
+
+// Show user info
+function showUser(user, ts){
+  userInfoCard.style.display = "flex";
+  userPhoto.src = user.photoURL;
+  userName.textContent = user.displayName;
+  userEmail.textContent = user.email;
+  lastLogin.textContent = formatTimestamp(ts);
+  navbarUser.textContent = user.displayName;
+  loginBtnNav.style.display = "none";
+  logoutBtnNav.style.display = "inline-block";
+}
+
+// Auth state
+onAuthStateChanged(auth, async user => {
+  if(user){
+    const docSnap = await getDoc(doc(db, "users", user.uid));
+    const last = docSnap.exists() ? docSnap.data().lastLogin : null;
+    showUser(user, last);
+  }
+});
+</script>
+
+</body>
+</html>

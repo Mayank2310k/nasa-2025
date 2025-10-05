@@ -1,0 +1,82 @@
+[
+  {
+    "pl_name": "Kepler-10 b",
+    "pl_orbper": 0.8375,
+    "pl_rade": 1.47,
+    "pl_trandur": 1.81,
+    "st_teff": 5627,
+    "disposition_using_kepler_data": "CONFIRMED"
+  },
+  {
+    "pl_name": "Kepler-11 b",
+    "pl_orbper": 10.30375,
+    "pl_rade": 1.8,
+    "pl_trandur": 4.02,
+    "st_teff": 5680,
+    "disposition_using_kepler_data": "CONFIRMED"
+  },
+  {
+    "pl_name": "Kepler-12 b",
+    "pl_orbper": 4.43796,
+    "pl_rade": 18.0,
+    "pl_trandur": 6.86,
+    "st_teff": 5947,
+    "disposition_using_kepler_data": "CONFIRMED"
+  },
+  {
+    "pl_name": "Kepler-13 b",
+    "pl_orbper": 1.76359,
+    "pl_rade": 16.1,
+    "pl_trandur": 3.02,
+    "st_teff": 8511,
+    "disposition_using_kepler_data": "CONFIRMED"
+  },
+  {
+    "pl_name": "KOI-351.02",
+    "pl_orbper": 7.008,
+    "pl_rade": 2.0,
+    "pl_trandur": 3.5,
+    "st_teff": 6080,
+    "disposition_using_kepler_data": "CANDIDATE"
+  },
+  {
+    "pl_name": "KOI-351.03",
+    "pl_orbper": 59.877,
+    "pl_rade": 1.6,
+    "pl_trandur": 4.2,
+    "st_teff": 6080,
+    "disposition_using_kepler_data": "CANDIDATE"
+  },
+  {
+    "pl_name": "KOI-351.04",
+    "pl_orbper": 331.6,
+    "pl_rade": 1.9,
+    "pl_trandur": 5.1,
+    "st_teff": 6080,
+    "disposition_using_kepler_data": "CANDIDATE"
+  },
+  {
+    "pl_name": "KOI-12.01",
+    "pl_orbper": 17.855,
+    "pl_rade": 2.7,
+    "pl_trandur": 3.7,
+    "st_teff": 6297,
+    "disposition_using_kepler_data": "FALSE POSITIVE"
+  },
+  {
+    "pl_name": "KOI-13.01",
+    "pl_orbper": 1.76359,
+    "pl_rade": 16.1,
+    "pl_trandur": 3.02,
+    "st_teff": 8511,
+    "disposition_using_kepler_data": "FALSE POSITIVE"
+  },
+  {
+    "pl_name": "KOI-72.02",
+    "pl_orbper": 45.29485,
+    "pl_rade": 1.2,
+    "pl_trandur": 2.5,
+    "st_teff": 5627,
+    "disposition_using_kepler_data": "CANDIDATE"
+  }
+]
